@@ -3,3 +3,5 @@ Week 1
 New GitHub repository is created for Capstone Project. 
 Jira account and the project were created.
 https://capstone-project2024.atlassian.net/jira/projects
+
+Epics on Jira were created and User stories with description were added.
