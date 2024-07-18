@@ -5,3 +5,11 @@ Jira account and the project were created.
 https://capstone-project2024.atlassian.net/jira/projects
 
 Epics on Jira were created and User stories with description were added.
+
+Week 2
+
+Figma diagrams were added. Stories on Jira were updated.
+
+Week 3
+
+Figma design was drawn. Description was added to the project.
