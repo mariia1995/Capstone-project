@@ -2,9 +2,9 @@ Week 1
 
 New GitHub repository is created for Capstone Project. 
 Jira account and the project were created.
-https://capstone-project2024.atlassian.net/jira/projects
+https://mit651s224team1.atlassian.net/jira/software/projects/T1/list
 
-Epics on Jira were created and User stories with description were added.
+Epics on Jira were created and User stories with descriptions were added.
 
 Week 2
 
@@ -13,3 +13,7 @@ Figma diagrams were added. Stories on Jira were updated.
 Week 3
 
 Figma design was drawn. Description was added to the project.
+
+Week 4
+
+The work was finalized. The project is ready for review.
