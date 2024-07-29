@@ -17,3 +17,7 @@ Figma design was drawn. Description was added to the project.
 Week 4
 
 The work was finalized. The project is ready for review.
+
+Week 5.
+
+Implementation of the project is started.
