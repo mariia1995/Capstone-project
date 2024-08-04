@@ -21,3 +21,8 @@ The work was finalized. The project is ready for review.
 Week 5
 
 Implementation of the project is started.
+
+Week 6.
+
+Added project repository https://github.com/sihe-mit651-24S1/capstone-project-mit651s224team1
+Added the code for login and profile
