@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block page_title %}Projects{% endblock %}
+
+{% block content %}
+    <h1>Projects</h1>
+    <div class="action-buttons">
+        <button type="button" id="redirectToCreateProjectBtn">Create Project</button>
+        <button type="button" id="remove-project">Remove Project</button>
+    </div>
+    <table id="projects-table">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Project ID</th>
+                <th>Project Name</th>
+                <th>Project Manager</th>
+            </tr>
+        </thead>
+        <tbody>
+
+        </tbody>
+    </table>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        // Project creation button
+       document.getElementById('redirectToCreateProjectBtn').addEventListener('click', function() {
+            window.location.href = "{{ url_for('project.create_project') }}";
+        });
+
+        // Project removal
+        document.querySelector('#remove-project').addEventListener('click', function() {
+            const selectedProjects = document.querySelectorAll('.project-checkbox:checked');
+
+            if (selectedProjects.length === 0) {
+                alert('Please select at least one project to remove.');
+                return;
+            }
+            if (selectedProjects.length > 1) {
+                alert('Please select only one project.');
+                return;
+            }
+
+            if (confirm('Are you sure you want to delete the selected project?')) {
+                const projectId = Array.from(selectedProjects).map(checkbox => checkbox.getAttribute('data-project-id'));
+                removeProject(projectId);
+            }
+        });
+        // Update the table with current projects
+        function addProjectRow(project) {
+
+            const tableBody = document.querySelector('#projects-table tbody');
+            const row = document.createElement('tr');
+
+            const checkboxCell = document.createElement('td');
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.className = 'project-checkbox';
+            checkbox.setAttribute('data-project-id', project.id);
+
+            checkboxCell.appendChild(checkbox);
+
+            const idCell = document.createElement('td');
+            const link = document.createElement('a');
+            link.textContent = project.id;
+            link.href = `/project/${project.id}`
+            idCell.appendChild(link);
+
+            const nameCell = document.createElement('td');
+            nameCell.textContent = project.project;
+
+            const managerCell = document.createElement('td');
+            managerCell.textContent = project.project_manager;
+
+            row.appendChild(checkboxCell);
+            row.appendChild(idCell);
+            row.appendChild(nameCell);
+            row.appendChild(managerCell);
+
+            tableBody.appendChild(row);
+        }
+        // Send GET request
+        function fetchProjects() {
+            fetch('/api/projects', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer {{token}}'
+                }
+            })
+
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Projects fetched:', data);
+                    data.forEach(project => addProjectRow(project));
+                })
+                .catch(error => {
+                    console.error('Error fetching projects:', error);
+                });
+        }
+
+        // send DELETE request
+        function removeProject(projectId) {
+            fetch(`/api/project/${projectId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': 'Bearer {{token}}'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to delete project');
+
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Project deleted:', data);
+
+                const row = document.querySelector(`input[data-project-id="${projectId}"]`).closest('tr');
+                if (row) {
+                    row.remove();
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting project:', error);
+                alert('You do not have permissions to remove the project!');
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchProjects();
+
+        });
+
+
+    </script>
+{% endblock %}

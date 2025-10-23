@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block page_title %}Create Project{% endblock %}
+
+{% block content %}
+    <h1>Create Project</h1>
+
+    <div class="form-container">
+        <form>
+            <label for="projectName">Project Name:</label>
+            <input type="text" id="projectName" name="projectName" required>
+            <br>
+            <label for="projectDescription">Project Description:</label>
+            <input type="text" id="projectDescription" name="projectDescription" required>
+            <br>
+            <button id="createProjectBtn">Create Project</button>
+        </form>
+    </div>
+{% endblock %}
+{% block scripts %}
+<script>
+    var projectsUrl = "{{ url_for('project.projects') }}";
+    document.getElementById('createProjectBtn').addEventListener('click', function() {
+            const name = document.getElementById('projectName').value;
+            const description = document.getElementById('projectDescription').value;
+
+            fetch('/api/project', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer {{token}}'
+                },
+                body: JSON.stringify({
+                    name: name,
+                    description: description,
+                }),
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+
+                } else {
+                    throw new Error('Something went wrong');
+                }
+            })
+            .then(data => {
+                console.log('Project created:', data);
+                alert('Project Created successfully!');
+                window.location.href = projectsUrl;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('There was an error during project creation.');
+            });
+        });
+         </script>
+{% endblock %}
+
+

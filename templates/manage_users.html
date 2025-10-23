@@ -1,0 +1,219 @@
+{% extends "base.html" %}
+{% block page_title %}Project Information{% endblock %}
+
+{% block content %}
+<h1>Users</h1>
+<div>
+    <button id="delete-friends-btn">Delete Users</button>
+</div>
+<table id="selected-friends-table">
+    <thead>
+        <tr>
+            <th>Select</th>
+            <th>Username</th>
+            <th>Role</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Selected users will be dynamically added here -->
+    </tbody>
+</table>
+
+<h1>Add Users</h1>
+<div>
+    <button id="add-friends-btn">Add Users</button>
+</div>
+
+<table id="users-table">
+    <thead>
+        <tr>
+            <th>Select</th>
+            <th>Username</th>
+            <th>First name</th>
+            <th>Last name</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Users will be loaded dynamically -->
+    </tbody>
+</table>
+
+{% endblock %}
+{% block scripts %}
+<script>
+// Global projectId and token
+const projectId = "{{ projectId }}";
+const token = "{{ token }}";
+
+// Function to load users and populate the table
+function loadUsers() {
+    const apiUrl = '/api/users';
+
+    fetch(apiUrl, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(users => {
+        const tableBody = document.querySelector("#users-table tbody");
+        tableBody.innerHTML = ''; // Clear the existing rows
+
+        users.forEach(user => {
+            const row = document.createElement("tr");
+
+            const checkboxCell = document.createElement("td");
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.classList.add("friend-checkbox");
+            checkbox.setAttribute("data-user-id", user.id);
+            checkboxCell.appendChild(checkbox);
+            row.appendChild(checkboxCell);
+
+            const userCell = document.createElement("td");
+            userCell.textContent = user.username || 'N/A';
+            row.appendChild(userCell);
+
+            const userFNCell = document.createElement("td");
+            userFNCell.textContent = user.first_name || 'N/A';
+            row.appendChild(userFNCell);
+
+            const userLNCell = document.createElement("td");
+            userLNCell.textContent = user.last_name || 'N/A';
+            row.appendChild(userLNCell);
+
+            tableBody.appendChild(row);
+        });
+    })
+    .catch(error => console.error('Error fetching users:', error));
+}
+
+// Function to load selected users for the project
+function loadSelectedUsers() {
+    const apiUrl = `/api/project_users/${projectId}`;
+
+    fetch(apiUrl, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        const tableBody = document.querySelector("#selected-friends-table tbody");
+        tableBody.innerHTML = ''; // Clear the existing rows
+
+        data.forEach(user => {
+            const row = document.createElement("tr");
+
+            const checkboxCell = document.createElement('td');
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.className = 'user-checkbox';
+            checkbox.setAttribute('data-user-id', user.user_id);
+            checkboxCell.appendChild(checkbox);
+            row.appendChild(checkboxCell);
+
+            const userCell = document.createElement("td");
+            const userLink = document.createElement("a");
+            userLink.textContent = user.username;
+            userLink.href = `/profile/${user.user_id}`;
+            userCell.appendChild(userLink);
+            row.appendChild(userCell);
+
+            const roleCell = document.createElement("td");
+            roleCell.textContent = user.role;
+            row.appendChild(roleCell);
+
+            tableBody.appendChild(row);
+        });
+    })
+    .catch(error => console.error("There was a problem with the fetch operation:", error));
+}
+
+// Call the functions to load the users and selected users
+document.addEventListener('DOMContentLoaded', function() {
+    loadUsers();
+    loadSelectedUsers();
+});
+
+// Handle the button click for adding users
+document.getElementById('add-friends-btn').addEventListener('click', function() {
+    const selectedFriends = [];
+
+    document.querySelectorAll('.friend-checkbox:checked').forEach(checkbox => {
+        selectedFriends.push(checkbox.getAttribute('data-user-id'));
+    });
+
+    if (selectedFriends.length === 0) {
+        alert('Please select at least one user to add as a friend.');
+        return;
+    }
+
+    const url = `/api/${projectId}/add_users`;
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ user_ids: selectedFriends })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Selected users have been added.');
+            loadSelectedUsers(); // Refresh the selected users table
+            loadUsers(); // Refresh the users table
+        } else {
+            alert('The user is already assigned to the project.');
+        }
+    })
+    .catch(error => {
+        console.error('Error adding users:', error);
+        alert('An error occurred while adding users.');
+    });
+});
+
+// Handle the button click for deleting users
+document.getElementById("delete-friends-btn").addEventListener("click", function() {
+    const friendIds = Array.from(document.querySelectorAll('.user-checkbox:checked'))
+        .map(checkbox => parseInt(checkbox.getAttribute('data-user-id')));
+
+    if (friendIds.length === 0) {
+        alert("Please select friends to delete.");
+        return;
+    }
+
+    const data = { friend_ids: friendIds };
+    const deleteFriendsApiUrl = `/api/${projectId}/delete_users`;
+
+    fetch(deleteFriendsApiUrl, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(responseData => {
+        if (responseData.success) {
+            alert("Selected users have been deleted.");
+            loadSelectedUsers(); // Refresh the selected users table
+            loadUsers(); // Refresh the users table
+        } else {
+            alert(`Error deleting users: ${responseData.message}`);
+        }
+    })
+    .catch(error => {
+        console.error("Error during the request:", error);
+        alert('An error occurred while deleting users.');
+    });
+});
+</script>
+{% endblock %}

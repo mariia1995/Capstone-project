@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block page_title %}Create Task{% endblock %}
+
+{% block content %}
+    <h1>Create Task</h1>
+
+    <div class="form-container">
+        <form id="taskForm">
+            <label for="taskName">Task Name:</label>
+            <input type="text" id="taskName" name="taskName" required>
+            <br>
+            <label for="taskDescription">Task Description:</label>
+            <textarea id="taskDescription" name="taskDescription" rows="4" cols="50"></textarea>
+            <br>
+            <label for="dueDate">Due Date:</label>
+            <input type="date" id="dueDate" name="dueDate">
+            <br>
+            <button id="createTaskBtn">Create Task</button>
+        </form>
+    </div>
+{% endblock %}
+{% block scripts %}
+<script>
+    // Task Creation
+             async function createTask(projectId, taskData) {
+                const url = `/api/project/${projectId}/task`;
+
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer {{token}}'
+                        },
+                        body: JSON.stringify(taskData),
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`There was an error during creation: ${response.statusText}`);
+                        alert('There was an error on tasks creation!');
+                    }
+
+
+                    window.location.href = `/project/${projectId}`;
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('There was an error on tasks creation!');
+                }
+            }
+
+
+      document.getElementById('taskForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const taskName = document.getElementById('taskName').value;
+            const taskDescription = document.getElementById('taskDescription').value;
+            const dueDate = document.getElementById('dueDate').value;
+
+            const taskData = {
+                name: taskName,
+                description: taskDescription,
+                due_date: dueDate
+            };
+            projectId=getProjectIdFromUrl();
+            createTask(projectId, taskData);
+        });
+
+    function getProjectIdFromUrl() {
+            const path = window.location.pathname;
+            const parts = path.split('/');
+            const projectIdIndex = parts.indexOf('project') + 1;
+            return parts[projectIdIndex];
+        }
+
+         </script>
+{% endblock %}

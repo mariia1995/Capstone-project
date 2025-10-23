@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block page_title %}Task {% endblock %}
+{% block styles %}
+.hidden {
+            display: none;
+        }
+        .readonly-status {
+            display: inline;
+        }
+        .edit-mode .readonly-status {
+            display: none;
+        }
+        .edit-mode .status-dropdown {
+            display: inline;
+        }
+{% endblock %}
+{% block content %}
+    <h1>Task</h1>
+    <button type="button" id="edit-button" onclick="toggleEditMode()">Edit</button>
+    <button type="button" id="change-assignment-button" onclick="toggleAssignChange()">Change assignment</button>
+    <button type="submit" id="save-button" style="display: none;">Save Changes</button>
+    <form id="task-form" action="/update_task" method="post">
+    <div>
+        <p><strong>Project:</strong> <span id="task-project">{{ task.get('project') or '' }}</span></p>
+        <div class="form-group">
+                <label for="name"><strong>Task Name:</strong></label>
+                <input type="text" id="name" name="name" value="{{ task.get('task_name') or '' }}" readonly>
+            </div>
+        <div class="form-group">
+                <label for="description"><strong>Task Description:</strong></label>
+                <input type="text" id="description" name="description" value="{{ task.get('description') or '' }}" readonly>
+        </div>
+        <p><strong>Status:</strong>
+        <span class="readonly-status" id="status">{{ task.get('status') or '' }}</span>
+
+        <select class="status-dropdown hidden" id="status-dropdown" name="status">
+            <option value="Not Started" selected>Not Started</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+        </select>
+    </p>
+
+        <p><strong>Assignee:</strong> <span id="task-assignee">{{ task.get('assignee') or '' }}</span></p>
+        <p><strong>Creation date:</strong> <span id="task-creation-date">{{ task.get('creation_date') or '' }}</span></p>
+        <p><strong>Creator:</strong> <span id="task-creator">{{ task.get('creator') or '' }}</span></p>
+        <div class="form-group">
+                <label for="due_date"><strong>Due Date:</strong></label>
+                <input type="date" id="due_date" name="due_date" value="{{ task.get('due_date') or '' }}" readonly>
+        </div>
+
+    </div>
+
+
+    </form>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+
+         function toggleEditMode() {
+            var taskForm = document.getElementById('task-form');
+            var editButton = document.getElementById('edit-button');
+            var saveButton = document.getElementById('save-button');
+            var inputs = taskForm.querySelectorAll('input');
+
+            if (taskForm.classList.contains('edit-mode')) {
+                taskForm.classList.remove('edit-mode');
+                editButton.style.display = 'block';
+                saveButton.style.display = 'none';
+                inputs.forEach(function(input) {
+                    input.setAttribute('readonly', 'readonly');
+                });
+            } else {
+                taskForm.classList.add('edit-mode');
+                editButton.style.display = 'none';
+                saveButton.style.display = 'block';
+                inputs.forEach(function(input) {
+                    input.removeAttribute('readonly');
+                });
+            }
+        }
+
+
+    document.getElementById('save-button').addEventListener('click', function() {
+    var taskForm = document.getElementById('task-form');
+    const taskId = {{ task.get('id') }};
+    var inputs = taskForm.querySelectorAll('input');
+    var updatedData = {};
+
+    // Collect updated data from the form inputs
+    inputs.forEach(function(input) {
+        updatedData[input.name] = input.value; // Assuming each input has a 'name' attribute
+    });
+
+    // Send the updated data to the server (assuming an API endpoint to update the task)
+    fetch(`/api/project/task/${taskId}`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer {{ token }}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(updatedData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Task updated successfully!');
+            toggleEditMode(); // Disable edit mode after saving
+        } else {
+            alert('Failed to save changes.');
+        }
+    })
+    .catch(error => {
+        console.error('Error saving task:', error);
+        alert('An error occurred while saving the task.');
+    });
+});
+
+    </script>
+{% endblock %}

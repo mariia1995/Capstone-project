@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Taskly - Login</title>
+	<link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/taskly.ico') }}"/>
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}" />
+</head>
+
+<body>
+    <div class="form-panel">
+		{% with messages = get_flashed_messages(with_categories=True) %}
+            {% if messages %}
+                <div class="message">
+                    {% for category, message in messages %}
+                        <div class="{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+	
+		
+		<div class="logo"><a href="{{ url_for('auth.home') }}">Taskly</a></div>
+		<div class="tagline">Log in to simplify your teamwork.</div>
+		
+		<form action="/login" method="post">
+			<input type="text" id="username" name="username" placeholder="Username" required>
+			<input type="password" id="password" name="password" placeholder="Password" required>
+			<button type="submit">Login</button>
+		</form>
+
+		<div class="form-links">
+			<a href="{{ url_for('auth.password_recovery') }}">Forgot Password?</a>
+			<a href="{{ url_for('auth.register') }}">Register</a>
+		</div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block page_title %}Profile{% endblock %}
+{% block content %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flashes">
+                {% for category, message in messages %}
+                    <li class="{{ category }}" id="flash-message">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+        <form id="profile-form" action="/update_profile" method="post">
+            <div class="form-group">
+                <h1>Welcome, {{ user.get('username') }}!</h1>
+                <h2>Profile information</h2>
+            </div>
+             <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" value="{{ user.get('email') or '' }}" readonly>
+            </div>
+            <div class="username">
+                <p>Username: <span id="username">{{ user.get('username') or '' }}</span></p>
+            </div>
+            <div class="availability">
+
+                <p>Availability: <span id="availability">{{ user.get('availability')}}%</span></p>
+            </div>
+            <div class="form-group">
+                <label for="first_name">First Name:</label>
+                <input type="text" id="first_name" name="first_name" value="{{ user.get('first_name') or '' }}" readonly>
+            </div>
+            <div class="form-group">
+                <label for="last_name">Last Name:</label>
+                <input type="text" id="last_name" name="last_name" value="{{ user.get('last_name') or '' }}" readonly>
+            </div>
+            <div class="form-group">
+                <label for="birthdate">Date of Birth:</label>
+                <input type="date" id="birthdate" name="birthdate" value="{{ user.get('birthdate') or ''}}" readonly>
+            </div>
+            <div class="form-group">
+                <label for="phone">Phone Number:</label>
+                <input type="tel" id="phone" name="phone" value="{{ user.get('phone_number') or ''}}" readonly>
+            </div>
+            {% if is_own_profile %}
+            <button type="button" id="edit-button" onclick="toggleEditMode()">Edit</button>
+            {% endif %}
+            <button type="submit" id="save-button" style="display: none;">Save Changes</button>
+
+        </form>
+    </div>
+
+
+{% endblock %}
+{% block scripts %}
+<script>
+         function toggleEditMode() {
+            var profileForm = document.getElementById('profile-form');
+            var editButton = document.getElementById('edit-button');
+            var saveButton = document.getElementById('save-button');
+            var inputs = profileForm.querySelectorAll('input');
+
+            if (profileForm.classList.contains('edit-mode')) {
+                profileForm.classList.remove('edit-mode');
+                editButton.style.display = 'block';
+                saveButton.style.display = 'none';
+                inputs.forEach(function(input) {
+                    input.setAttribute('readonly', 'readonly');
+                });
+            } else {
+                profileForm.classList.add('edit-mode');
+                editButton.style.display = 'none';
+                saveButton.style.display = 'block';
+                inputs.forEach(function(input) {
+                    input.removeAttribute('readonly');
+                });
+            }
+        }
+
+    </script>
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block page_title %}Tasks{% endblock %}
+
+{% block content %}
+    <h1>Tasks</h1>
+    <table id="tasks-table">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Task Name</th>
+                <th>Project Name</th>
+                <th>Status</th>
+                <th>Due Date</th>
+            </tr>
+        </thead>
+        <tbody>
+
+        </tbody>
+    </table>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    fetch('/api/user/task', {
+        method: 'GET',
+        headers: {
+            'Authorization': 'Bearer {{token}}',
+            'Content-Type': 'application/json'
+        }
+    })
+
+            .then(response => {
+            if (!response.ok) {
+                throw new Error("Network response was not ok " + response.statusText);
+            }
+            return response.json();
+        })
+        .then(data => {
+            const tableBody = document.querySelector('#tasks-table tbody');
+            tableBody.innerHTML = '';
+
+            data.forEach(task => {
+                const row = document.createElement('tr');
+
+                row.innerHTML = `
+                    <td><input type="checkbox"></td>
+                    <td><a href="/project/${task.project_id}/task/${task.task_id}">${task.task_name}</a></td>
+                    <td><a href="/project/${task.project_id}">${task.project_name}</a></td>
+                    <td>${task.status}</td>
+                    <td>${task.due_date}</td>
+                `;
+
+                tableBody.appendChild(row);
+            });
+        })
+
+</script>
+{% endblock %}

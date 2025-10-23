@@ -1,0 +1,113 @@
+:root {
+    --primary-color: #4a69bd;
+    --secondary-color: #f2f6fa;
+    --text-emphasis-color: #333;
+    --text-secondary-color: #555;
+    --warning-color: #d9534f;
+    --success-color: #5cb85c;
+    --btn-hover: #3b56a3;
+    --font-family: 'Inter', sans-serif;
+    --box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    --nav-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    --large-border-radius: 16px;
+    --small-border-radius: 8px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-family);  
+}
+
+body {
+    background: var(--secondary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+.form-panel {
+    background: white;
+    padding: 3rem;
+    box-shadow: var(--box-shadow);
+    border-radius: var(--large-border-radius);
+    width: 30%;
+    min-width: 350px;
+    max-width: 500px;
+}
+
+.logo {
+    font-size: 2rem;
+    font-weight: 700;
+    text-align: center;
+    color: var(--primary-color);
+}
+
+.logo a {
+    text-decoration: none;
+    color: var(--primary-color);
+}
+
+.tagline {
+    text-align: center;
+    color: var(--text-secondary-color);
+    font-size: 0.9rem;
+    margin-top: 0.8rem;
+    margin-bottom: 1.8rem;
+}
+
+.form-links {
+    text-align: center;
+    display: flex;
+    justify-content: space-between;
+}
+
+.form-links a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-size: 0.85rem;
+}
+
+.form-links a:hover {
+    text-decoration: underline;
+}
+
+.message {
+    color: var(--warning-color);
+    font-size: 0.9rem;
+}
+
+.message.success {
+    color: var(--success-color);
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+input {
+    padding: 12px;
+    margin-bottom: 16px;
+    border: 1px solid var(--text-secondary-color);
+    border-radius: var(--small-border-radius);
+    font-size: 1rem;
+}
+
+button {
+    padding: 12px;
+    margin-bottom: 16px;
+    width: 100%;
+    background: var(--primary-color);
+    color: white;
+    font-size: 1rem;
+    border: none;
+    border-radius: var(--small-border-radius);
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+button:hover {
+    background-color: var(--btn-hover);
+}

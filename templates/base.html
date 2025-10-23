@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/taskly.ico') }}"/>
+	<title>{{ page_title }}</title>
+    <style>
+        :root {
+            --primary-color: #4a69bd;
+            --secondary-color: #f2f6fa;
+            --text-emphasis-color: #333;
+            --text-secondary-color: #555;
+            --warning-color: #d9534f;
+            --success-color: #5cb85c;
+            --btn-hover: #3b56a3;
+            --font-family: 'Inter', sans-serif;
+            --box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            --nav-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            --large-border-radius: 16px;
+            --small-border-radius: 8px;
+        }
+
+        body {
+            font-family: var(--font-family);
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            background-color: var(--secondary-color);
+            color: var(--text-emphasis-color);
+            font-weight: bold;
+            font-size: 1.5rem;
+            padding: 20px;
+            width: 200px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            box-shadow: var(--nav-shadow);
+        }
+
+        .sidebar a {
+            color: var(--text-emphasis-color);
+            text-decoration: none;
+            margin: 10px 0;
+            font-size: 18px;
+            padding: 10px;
+            transition: background 0.3s;
+            border-radius: var(--small-border-radius);
+        }
+
+        .sidebar a:hover {
+            background-color: var(--btn-hover);
+            color: white;
+        }
+        .content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        h1 {
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            margin-bottom: 5px;
+        }
+        input[type="text"], input[type="email"], input[type="tel"], input[type="date"] {
+            width: 50%;
+
+        }
+        input[readonly] {
+            cursor: not-allowed;
+            outline: none;
+            border: none;
+            height: 40px;
+        }
+        input[readonly]:hover {
+            background-color: #575757;
+        }
+        .edit-mode input {
+            background-color: white;
+            cursor: text;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: var(--small-border-radius);
+            border: 1px solid var(--primary-color);
+        }
+        button:hover {
+            background-color: var(--btn-hover);
+        }
+        .edit-mode input {
+            height: 25px;
+        }
+        .edit-mode button {
+            background-color: var(--primary-color);
+        }
+        .edit-mode button:hover {
+            background-color: var(--btn-hover);
+        }
+        .logout-button {
+            position: absolute;
+            top: 0px;
+            right: 0px;
+            padding: 10px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: var(--small-border-radius);
+        }
+        .logout-button:hover {
+            background-color: var(--btn-hover);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        label, input {
+        display: inline-block;
+    }
+        .flashes {
+    list-style-type: none;
+    padding: 0;
+}
+
+.flashes li {
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: var(--small-border-radius);
+    color: white;
+    font-weight: bold;
+    opacity: 1;
+    transition: opacity 1s ease-out;
+}
+
+.flashes .error {
+    background-color: var(--warning-color);
+}
+
+.flashes .success {
+    background-color: var(--success-color);
+}
+
+.hidden {
+    display: none;
+}
+        {% block styles %}
+        {% endblock %}
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <a href="{{ url_for('auth.profile', id=current_user.id) }}">Profile</a>
+            <a href="{{ url_for('project.projects') }}">Projects</a>
+            <a href="{{ url_for('task.tasks') }}">Tasks</a>
+            <a href="{{ url_for('friends.friend') }}">Friends</a>
+        </div>
+
+        <div class="content">
+            {% block content %}{% endblock %}
+        </div>
+        {% block scripts %}{% endblock %}
+    </div>
+    <a href="{{ url_for('auth.logout') }}" class="logout-button">Logout</a>
+</body>
+
+
+</html>
+<script>
+
+        function hideFlashMessages() {
+            const messages = document.querySelectorAll('#flash-message');
+            messages.forEach(message => {
+                setTimeout(() => {
+                    message.style.opacity = '0';
+                    setTimeout(() => {
+                        message.remove();
+                    }, 1000);
+                }, 500);
+            });
+        }
+
+
+        window.onload = hideFlashMessages;
+    </script>

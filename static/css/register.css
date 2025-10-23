@@ -1,0 +1,31 @@
+.form-panel {
+  padding-top: 6rem;
+}
+
+.verification-row {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.verification-row input[type="text"] {
+    flex: 2;
+}
+
+.password-rules {
+  list-style: none;
+}
+
+.password-rules li {
+  color: var(--text-secondary-color);
+  font-size: 0.9rem;
+  margin: -0.5rem auto 0.8rem 0.5rem;
+  transition: color 0.2s;
+}
+
+.password-rules li.valid {
+  color: var(--success-color);
+}
+
+.password-rules li.invalid {
+  color: var(--warning-color);
+}

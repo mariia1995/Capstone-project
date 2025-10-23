@@ -1,0 +1,270 @@
+{% extends "base.html" %}
+
+{% block page_title %}Project Information{% endblock %}
+
+{% block content %}
+<h1>{{ project.get("name") }}</h1>
+<div class="project-info">
+    <form id="project-form" action="/update_project" method="post">
+        <button type="button" id="edit-button" onclick="toggleEditMode()">Edit Project</button>
+        <br>
+        <button type="submit" id="save-button" style="display: none;">Save Changes</button>
+        <input type="hidden" name="project-id" id="hidden-project-id" value="{{ project.get('id') }}">
+        <label for="name"><strong>Project Name:</strong></label><input type="text" id="name" name="name" value="{{ project.get('name') or '' }}" readonly>
+        <p><strong>Project Manager: </strong> <a href="/profile/{{ project.get('user_id') }}" id="project-manager">{{ project.get("user_id") }}</a></p>
+        <label for="description"><strong>Description:</strong></label><input type="text" id="description" name="description" value="{{ project.get('description') or '' }}" readonly>
+        <p><strong>Creation Date: </strong><span id="creation_date">{{ project.get("creation_date") }}</span></p>
+    </form>
+</div>
+<h2>Project Tasks</h2>
+    <div class="action-buttons">
+        <button type="button" id="redirectToCreateTaskBtn">Create Task</button>
+        <button type="button" id="remove-task">Remove Task</button>
+    </div>
+    <table id="tasks-table">
+        <thead>
+            <tr>
+                <th>Select</th>
+                <th>Task ID</th>
+                <th>Task name</th>
+                <th>Task status</th>
+                <th>Username</th>
+            </tr>
+        </thead>
+        <tbody>
+
+        </tbody>
+    </table>
+    <h2>Project Users</h2>
+    <div class="action-buttons">
+        <button type="button" id="manage-user">Manage Users</button>
+
+    </div>
+    <table id="users-table">
+        <thead>
+            <tr>
+
+                <th>User</th>
+                <th>Role</th>
+            </tr>
+        </thead>
+        <tbody>
+
+        </tbody>
+    </table>
+{% endblock %}
+{% block scripts %}
+    <script>
+        const projectId = "{{ project.get('id') }}"
+
+        // Task creation button event listener
+        document.getElementById('redirectToCreateTaskBtn').addEventListener('click', function() {
+            const createTaskUrl = `/project/${projectId}/create_task`;
+            window.location.href = createTaskUrl;
+        });
+
+        document.getElementById('manage-user').addEventListener('click', function() {
+            const manage_user_url = `/project/${projectId}/manage_users`;
+            window.location.href = manage_user_url;
+        });
+        //edit project
+        function toggleEditMode() {
+            var profileForm = document.getElementById('project-form');
+            var editButton = document.getElementById('edit-button');
+            var saveButton = document.getElementById('save-button');
+            var inputs = profileForm.querySelectorAll('input');
+
+            if (profileForm.classList.contains('edit-mode')) {
+                profileForm.classList.remove('edit-mode');
+                editButton.style.display = 'block';
+                saveButton.style.display = 'none';
+                inputs.forEach(function(input) {
+                    input.setAttribute('readonly', 'readonly');
+                });
+            } else {
+                profileForm.classList.add('edit-mode');
+                editButton.style.display = 'none';
+                saveButton.style.display = 'block';
+                inputs.forEach(function(input) {
+                    input.removeAttribute('readonly');
+                });
+             }
+        }
+
+        // Display tasks
+    async function loadTasks() {
+
+    const url = `/api/project/${projectId}/task`;
+
+    try {
+        const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer {{token}}'
+                }
+            });
+        if (!response.ok) {
+            throw new Error(`No tasks found: ${response.statusText}`);
+        }
+
+        const tasks = await response.json();
+        const tableBody = document.querySelector('#tasks-table tbody');
+        tableBody.innerHTML = '';
+
+        tasks.forEach(task => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><input type="checkbox" name="taskCheckbox" value="${task.id}" class="task-checkbox" data-task-id="${task.id}"></td>
+                <td><a href="/project/${encodeURIComponent(projectId)}/task/${encodeURIComponent(task.id)}">${task.id}</a></td>
+                <td>${task.task_name}</td>
+                <td>${task.status}</td>
+                <td><a href="/profile/${task.user_id}">${task.username}</a></td>
+            `;
+                    tableBody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+
+    window.addEventListener('DOMContentLoaded', loadTasks);
+
+        // Add users
+        document.addEventListener("DOMContentLoaded", function() {
+            const apiUrl = `/api/project_users/${projectId}`;
+
+    // Fetch data from the API get users
+    fetch(apiUrl, {
+        method: 'GET',
+        headers: {
+            'Authorization': 'Bearer {{token}}',
+            'Content-Type': 'application/json'
+        }
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Network response was not ok " + response.statusText);
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Get the table body element
+            const tableBody = document.querySelector("#users-table tbody");
+
+            // Iterate over each user in the data
+            data.forEach(user => {
+                // Create a new row
+                const row = document.createElement("tr");
+
+
+                // Create a cell for the User name
+                const userCell = document.createElement("td");
+                const userLink = document.createElement("a");
+                userLink.textContent = user.username;
+                const user_id = user.user_id
+                userLink.href = `/profile/${user_id}`;
+
+                userCell.appendChild(userLink);
+                row.appendChild(userCell);
+
+                // Create a cell for the Role
+                const roleCell = document.createElement("td");
+                roleCell.textContent = user.role;
+                row.appendChild(roleCell);
+
+                // Append the row to the table body
+                tableBody.appendChild(row);
+            });
+        })
+        .catch(error => {
+            console.error("There was a problem with the fetch operation:", error);
+        });
+});
+
+            // Get all checked checkboxes for the user
+            document.querySelectorAll(".user-checkbox:checked").forEach(checkbox => {
+                selectedUsers.push(checkbox.getAttribute("data-user-id"));
+            });
+
+            //if (selectedUsers.length === 0) {
+            //    alert("Please select at least one user to delete.");
+            //    //return;
+            //}
+
+
+
+//    .catch(error => {
+//        console.error("There was a problem with the fetch operation:", error);
+//    });
+//});
+
+
+   //Remove tasks
+   document.getElementById('remove-task').addEventListener('click', function() {
+    // take all checkboxes
+    const checkedCheckboxes = document.querySelectorAll('.task-checkbox:checked');
+
+    // Check that at least 1 checkbox is checked
+    if (checkedCheckboxes.length === 0) {
+        alert('Please select at least one task to remove.');
+        return;
+    }
+
+    //Selected task IDs
+    const taskIds = Array.from(checkedCheckboxes).map(checkbox => checkbox.getAttribute('data-task-id'));
+
+    // send the query to delete tasks
+    fetch('/remove-tasks', {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer {{token}}'
+        },
+        body: JSON.stringify({ task_ids: taskIds })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update the table with tasks
+            updateTaskTable(data.tasks);
+            alert("Selected tasks have been removed.");
+        } else {
+            alert("Error: " + data.error);
+        }
+    })
+    .catch(error => {
+        alert("An error occurred: " + error);
+    });
+});
+
+function updateTaskTable(tasks) {
+    const tbody = document.querySelector('#tasks-table tbody');
+    tbody.innerHTML = '';
+
+
+    if (Array.isArray(tasks)) {
+        tasks.forEach(task => {
+            const row = document.createElement('tr');
+            row.id = `task-${task.id}`;
+
+            row.innerHTML = `
+                <td><input type="checkbox" class="task-checkbox" data-task-id="${task.id}"></td>
+                <td>${task.id}</td>
+                <td>${task.name}</td>
+                <td>${task.status}</td>
+                <td>${task.username}</td>
+            `;
+
+            tbody.appendChild(row);
+        });
+    } else {
+        console.error("Tasks is not an array", tasks);
+    }
+}
+
+
+
+</script>
+{% endblock %}

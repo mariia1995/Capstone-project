@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taskly - Register</title>
+	<link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/taskly.ico') }}"/>
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}" />
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/register.css') }}" />
+</head>
+
+<body>
+    <div class="form-panel">
+		<div class="logo"><a href="{{ url_for('auth.home') }}">Taskly</a></div>
+		<div class="tagline">Join Taskly. Smart tasks start here.</div>
+		
+		<form id="registerForm" action="{{ url_for('auth.register') }}" method="post">
+			<input type="text" id="username" name="username" placeholder="Username" required />
+			
+			<input type="email" id="email" name="email" placeholder="Email" required />
+			<div class="verification-row">
+				<input type="text" id="code" name="code" placeholder="Verification Code" />
+				<button type="button" onclick="sendCode()">Send Code</button>
+			</div>
+
+			<input type="password" id="password" name="password" placeholder="Password" required />
+			<ul class="password-rules" id="password-rules">
+				<li id="length"><span class="check">&#10004;</span> 8–20 characters</li>
+				<li id="number"><span class="check">&#10004;</span> At least one number</li>
+				<li id="uppercase"><span class="check">&#10004;</span> At least one uppercase letter</li>
+				<li id="lowercase"><span class="check">&#10004;</span> At least one lowercase letter</li>
+			</ul>
+			
+			<input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm Password" required />
+			<div class="message" id="message"></div>
+			<button class="submit-button" type="submit">Register</button>
+		</form>
+		
+		<div class="form-links">
+        	<a href="{{ url_for('auth.login') }}">Already have an account?</a>
+		</div>
+
+		{% with messages = get_flashed_messages(with_categories=True) %}
+            {% if messages %}
+                <div class="error-message">
+                    {% for category, message in messages %}
+                        <div class="{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+	</div>
+
+	<script>
+		const passwordInput = document.getElementById('password');
+		const lengthRule = document.getElementById('length');
+		const numberRule = document.getElementById('number');
+		const uppercaseRule = document.getElementById('uppercase');
+		const lowercaseRule = document.getElementById('lowercase');
+
+		passwordInput.addEventListener('input', function () {
+			const value = passwordInput.value;
+
+			if (value.length >= 8 && value.length <= 20) {
+			  lengthRule.classList.remove('invalid');
+			  lengthRule.classList.add('valid');
+			} else {
+			  lengthRule.classList.remove('valid');
+			  lengthRule.classList.add('invalid');
+			}
+
+			if (/\d/.test(value)) {
+			  numberRule.classList.remove('invalid');
+			  numberRule.classList.add('valid');
+			} else {
+			  numberRule.classList.remove('valid');
+			  numberRule.classList.add('invalid');
+			}
+
+			if (/[A-Z]/.test(value)) {
+			  uppercaseRule.classList.remove('invalid');
+			  uppercaseRule.classList.add('valid');
+			} else {
+			  uppercaseRule.classList.remove('valid');
+			  uppercaseRule.classList.add('invalid');
+			}
+
+			if (/[a-z]/.test(value)) {
+			  lowercaseRule.classList.remove('invalid');
+			  lowercaseRule.classList.add('valid');
+			} else {
+			  lowercaseRule.classList.remove('valid');
+			  lowercaseRule.classList.add('invalid');
+			}
+	    });
+	  
+		function sendCode() {
+			const email = document.getElementById("email").value;
+
+			fetch("/send-code", {
+				method: "POST",
+				headers: {
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify({ email })
+			})
+			.then(res => res.json())
+			.then(data => {
+				document.getElementById("message").innerText = data.message;
+			})
+			.catch(() => {
+				document.getElementById("message").innerText = "Failed to send verification code.";
+			});
+		}
+	</script>
+
+</body>
+</html>
